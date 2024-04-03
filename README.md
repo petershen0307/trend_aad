@@ -6,4 +6,7 @@ show UI
 go run main.go -- -rod=show
 ```
 
-trend_aad "https://awssts.infosec.trendmicro.com" "user"
+trend_aad "user" "aws account"
+
+chromium dependencies
+`sudo apt install -y libnss3 libgbm-dev libasound2`

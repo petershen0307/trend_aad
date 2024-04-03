@@ -21,8 +21,9 @@ func main() {
 	launcher.Open(browser.ServeMonitor(""))
 	defer browser.MustClose()
 
-	aadURL := os.Args[1]
-	user := os.Args[2]
+	trendAADURL := "https://awssts.infosec.trendmicro.com"
+	user := os.Args[1]
+	awsAccount := os.Args[2]
 	fmt.Print("Enter Password: ")
 	// to hide user input on terminal
 	bytePassword, err := term.ReadPassword(int(syscall.Stdin))
@@ -34,7 +35,7 @@ func main() {
 	// fmt.Println(aadURL, user, password)
 
 	// it will receive a 302 redirection
-	page := browser.MustPage(aadURL).MustWaitStable()
+	page := browser.MustPage(trendAADURL).MustWaitStable()
 
 	// cursor to user account then click
 	page.MustElement("#i0116").MustInput(user).MustType(input.Enter)
@@ -45,14 +46,14 @@ func main() {
 	// page.MustWaitStable().MustElement("#idSIButton9").MustClick()
 
 	// wait page redirect
-	for !strings.Contains(page.MustInfo().URL, aadURL) {
+	for !strings.Contains(page.MustInfo().URL, trendAADURL) {
 		// log.Println("wait url redirect")
 		time.Sleep(1 * time.Second)
 	}
-	// expand dspm int
-	page.MustElement("#accordion530748458907 > div > a").MustClick()
+	// expand aws account div
+	page.MustElement(fmt.Sprintf("#accordion%s > div > a", awsAccount)).MustClick()
 	// select admin
-	page.MustElement("#collapse530748458907 > div > p > button").MustClick()
+	page.MustElement(fmt.Sprintf("#collapse%s > div > p > button", awsAccount)).MustClick()
 	// get sts
 	text := page.MustWaitStable().MustElement("#copyTextbash").MustClick().MustText()
 	fmt.Println(strings.ReplaceAll(strings.ReplaceAll(text, "export ", ""), ";", ""))
