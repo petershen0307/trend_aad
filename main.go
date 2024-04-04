@@ -1,8 +1,12 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -14,10 +18,17 @@ import (
 )
 
 func main() {
-	l := launcher.New().Headless(false)
-	defer l.Cleanup()
-	url := l.MustLaunch()
-	browser := rod.New().ControlURL(url).MustConnect()
+	controlURL := ""
+	if path, exists := launcher.LookPath(); exists {
+		controlURL = launcher.New().Bin(path).MustLaunch()
+	} else {
+		// try to install chromium
+		l := launcher.New().Headless(false)
+		defer l.Cleanup()
+		controlURL = l.MustLaunch()
+	}
+
+	browser := rod.New().ControlURL(controlURL).MustConnect()
 	launcher.Open(browser.ServeMonitor(""))
 	defer browser.MustClose()
 
@@ -50,11 +61,43 @@ func main() {
 		// log.Println("wait url redirect")
 		time.Sleep(1 * time.Second)
 	}
+
 	// expand aws account div
 	page.MustElement(fmt.Sprintf("#accordion%s > div > a", awsAccount)).MustClick()
 	// select admin
 	page.MustElement(fmt.Sprintf("#collapse%s > div > p > button", awsAccount)).MustClick()
-	// get sts
-	text := page.MustWaitStable().MustElement("#copyTextbash").MustClick().MustText()
-	fmt.Println(strings.ReplaceAll(strings.ReplaceAll(text, "export ", ""), ";", ""))
+	// get sts json format
+	page.MustWaitStable().MustElement("#json-tab").MustClick()
+	text := page.MustWaitStable().MustElement("#copyTextjson").MustClick().MustText()
+	fmt.Println(text)
+	aksk := AKSK{}
+	if err := json.Unmarshal([]byte(text), &aksk); err != nil {
+		log.Panicln("json unmarshal error=", err)
+	}
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Panicln(err)
+	}
+	const awsDir = ".aws"
+	const awsCredentialPath = awsDir + "/" + "credentials"
+	awsCredential := fmt.Sprintf(`[default]
+aws_access_key_id = %s
+aws_secret_access_key = %s
+aws_session_token  = %s
+`, aksk.AccessKeyId, aksk.SecretAccessKey, aksk.SessionToken)
+	if _, err := os.Stat(filepath.Join(homeDir, awsDir)); errors.Is(err, os.ErrNotExist) {
+		log.Println(err)
+		if err := os.MkdirAll(filepath.Join(homeDir, awsDir), 0777); err != nil {
+			log.Panicln("create folder error=", err)
+		}
+	}
+	if err := os.WriteFile(filepath.Join(homeDir, awsCredentialPath), []byte(awsCredential), 0666); err != nil {
+		log.Panicln("write file error=", err)
+	}
+}
+
+type AKSK struct {
+	AccessKeyId     string `json:"AccessKeyId"`
+	SecretAccessKey string `json:"SecretAccessKey"`
+	SessionToken    string `json:"SessionToken"`
 }
