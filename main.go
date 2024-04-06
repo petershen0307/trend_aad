@@ -21,12 +21,10 @@ func main() {
 	controlURL := ""
 	if path, exists := launcher.LookPath(); exists {
 		log.Println("detect browser", path)
-		controlURL = launcher.New().Bin(path).Headless(false).Leakless(false).MustLaunch()
+		controlURL = launcher.New().Bin(path).Headless(true).Leakless(false).MustLaunch()
 	} else {
 		// try to install chromium
-		l := launcher.New().Headless(false)
-		defer l.Cleanup()
-		controlURL = l.MustLaunch()
+		controlURL = launcher.New().Headless(true).MustLaunch()
 	}
 	browser := rod.New().ControlURL(controlURL).MustConnect()
 	launcher.Open(browser.ServeMonitor(""))
@@ -56,6 +54,10 @@ func main() {
 	// cursor to password then click
 	page.MustWaitStable().MustElement("#i0118").MustInput(password).MustType(input.Enter)
 	// page.MustWaitStable().MustElement("#idSIButton9").MustClick()
+
+	// show number for authenticator
+	number := page.MustWaitStable().MustElement("#idRichContext_DisplaySign").MustText()
+	fmt.Println("authenticator", number)
 
 	// wait page redirect
 	for !strings.Contains(page.MustInfo().URL, trendAADURL) {
