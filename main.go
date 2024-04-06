@@ -20,14 +20,14 @@ import (
 func main() {
 	controlURL := ""
 	if path, exists := launcher.LookPath(); exists {
-		controlURL = launcher.New().Bin(path).MustLaunch()
+		log.Println("detect browser", path)
+		controlURL = launcher.New().Bin(path).Headless(false).Leakless(false).MustLaunch()
 	} else {
 		// try to install chromium
 		l := launcher.New().Headless(false)
 		defer l.Cleanup()
 		controlURL = l.MustLaunch()
 	}
-
 	browser := rod.New().ControlURL(controlURL).MustConnect()
 	launcher.Open(browser.ServeMonitor(""))
 	defer browser.MustClose()
@@ -42,6 +42,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	fmt.Println("")
 	password := string(bytePassword)
 	// fmt.Println(aadURL, user, password)
 
