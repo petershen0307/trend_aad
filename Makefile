@@ -6,7 +6,7 @@ GO_BUILD_FLAGS ?=
 
 ADC_GITHUB_PERSONAL_TOKEN ?=
 
-APPS := $(wildcard ./)
+APPS := $(wildcard ./cmd/*/)
 OUTDIR := out
 VERSION ?= v1.0.0
 GOOS ?= $(shell go env GOOS)
