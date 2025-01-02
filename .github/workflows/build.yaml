@@ -6,8 +6,6 @@ name: build
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
 
@@ -25,4 +23,40 @@ jobs:
       run: make build_apps
 
     - name: Test
-      run: go test -v ./...
+      run: make test
+
+    - name: Set build version info into env
+      id: set_build_version_info
+      run: |
+        version_prefix=v0.0
+        version=$version_prefix.${{ github.run_number }}
+
+        if [ ${{ github.ref }} != "refs/heads/main" ]
+        then
+          echo "branch is ${{ github.ref }}"
+          echo "Not in main branch, add pr suffix to version"
+          version=$version-pr
+        fi
+        echo "version=$version"
+        echo "version=$version" >> $GITHUB_OUTPUT
+        echo "::notice title=version::${version}"
+
+    - name: Pack artifact
+      id: pack_artifact
+      run: |
+        artifact_name=app_linux_${{ steps.set_build_version_info.outputs.version }}.tar.gz
+        echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+        make pack_app PACK_APP_NAME=$artifact_name
+
+    - name: push tag ${{ steps.set_build_version_info.outputs.version }}
+      run: |
+        git tag -f ${{ steps.set_build_version_info.outputs.version }}
+        git push origin ${{ steps.set_build_version_info.outputs.version }}
+
+    - name: Upload artifact ${{ steps.pack_artifact.outputs.artifact_name }}
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.set_build_version_info.outputs.version }}
+        files: out/${{ steps.pack_artifact.outputs.artifact_name }}
+        target_commitish: ${{ github.ref }}
+        prerelease: true
