@@ -1,5 +1,7 @@
 # trend aad
 
+[![build](https://github.com/petershen0307/trend_aad/actions/workflows/build.yaml/badge.svg)](https://github.com/petershen0307/trend_aad/actions/workflows/build.yaml)
+
 ## Debugging with the UI
 
 ```bash
