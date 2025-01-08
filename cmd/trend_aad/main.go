@@ -8,15 +8,13 @@ import (
 
 	trendaad "github.com/petershen0307/trend_aad"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/term"
 )
 
 func main() {
 	initLogger()
 	user := retrieveUser(os.Args)
-	password := retrievePassword(os.Args)
 	browser := trendaad.InitialBrowser()
-	page := trendaad.LoginPage(browser, user, password)
+	page := trendaad.LoginPage(browser, user)
 	sts := trendaad.ExtractAwsStsFromPage(page)
 	awsCredentialFile, err := openAwsCredentialFile()
 	if err != nil {
@@ -54,25 +52,6 @@ func retrieveUser(args []string) string {
 		}
 	}
 	return user
-}
-
-func retrievePassword(args []string) string {
-	password := os.Getenv("TREND_PASSWORD")
-	if len(args) >= 3 {
-		password = args[2]
-	}
-	if password == "" {
-		fmt.Print("Enter Password: ")
-		// to hide user input on terminal
-		bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
-		if err != nil {
-			logrus.Error(err)
-			return ""
-		}
-		fmt.Println("")
-		password = string(bytePassword)
-	}
-	return password
 }
 
 func openAwsCredentialFile() (*os.File, error) {

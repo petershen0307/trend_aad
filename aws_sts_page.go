@@ -6,37 +6,65 @@ import (
 	"fmt"
 	"html"
 	"io"
-	"runtime"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/input"
-	"github.com/go-rod/rod/lib/launcher"
 	"github.com/sirupsen/logrus"
 )
 
 const trendAwsStsUrl = "https://awssts.infosec.trendmicro.com"
 
-func InitialBrowser() *rod.Browser {
-	controlURL := ""
-	if path, exists := launcher.LookPath(); exists {
-		logrus.Info("detect browser", path)
-		controlURL = launcher.New().Bin(path).Headless(true).MustLaunch()
-	} else {
-		// try to install chromium
-		logrus.Info("install browser")
-		controlURL = launcher.New().Headless(true).MustLaunch()
+// return two factor authenticator number
+func TryNoPasswordLoginPage(page *rod.Page) (string, error) {
+	// 1 check no password login option exist, click then go to 2 factor authenticator page
+	{
+		logrus.Info("Detect no password login option")
+		existed, e, err := page.MustWaitStable().Has("#idA_PWD_SwitchToRemoteNGC")
+		if err != nil {
+			logrus.Panicf("Got some error on Has #idA_PWD_SwitchToRemoteNGC: %v", err)
+		}
+		if existed {
+			logrus.Info("Click no password login option")
+			e.MustClick()
+		}
 	}
-	browser := rod.New().ControlURL(controlURL).MustConnect().Logger(logrus.StandardLogger())
-	launcher.Open(browser.ServeMonitor(""))
-	runtime.SetFinalizer(browser, func(browser *rod.Browser) {
-		browser.MustClose()
-	})
-	return browser
+	// 2 check current is in no password login, 2 factor authenticator page
+	{
+		existed, e, err := page.MustWaitStable().Has("#idRemoteNGC_DisplaySign")
+		if err != nil {
+			logrus.Panicf("Got some error on Has #idRemoteNGC_DisplaySign: %v", err)
+		}
+		if existed {
+			logrus.Info("Found the two factor authenticator number")
+			return e.MustText(), nil
+		}
+	}
+	// 3 check go to password login option
+	{
+		existed, e, err := page.MustWaitStable().Has("#idA_PWD_SwitchToPassword")
+		if err != nil {
+			logrus.Panicf("Got some error on Has #idA_PWD_SwitchToPassword: %v", err)
+		}
+		if existed {
+			logrus.Info("Go to password login")
+			e.MustClick()
+		}
+	}
+	return "", fmt.Errorf("Can't find the two factor authenticator number, go to password login")
 }
 
-func LoginPage(browser *rod.Browser, user, password string) *rod.Page {
+// return two factor authenticator number
+func TryPasswordLoginPage(page *rod.Page) string {
+	password := retrievePassword(os.Args)
+	page.MustWaitStable().MustElement("#i0118").MustInput(password).MustType(input.Enter)
+	number := page.MustWaitStable().MustElement("#idRichContext_DisplaySign").MustText()
+	return number
+}
+
+func LoginPage(browser *rod.Browser, user string) *rod.Page {
 	logrus.Info("Wait for the login page")
 	// it will receive a 302 redirection
 	page := browser.MustPage(trendAwsStsUrl).MustWaitStable()
@@ -44,13 +72,13 @@ func LoginPage(browser *rod.Browser, user, password string) *rod.Page {
 	// cursor to user account then click
 	page.MustElement("#i0116").MustInput(user).MustType(input.Enter)
 
-	// cursor to password then click
-	page.MustWaitStable().MustElement("#i0118").MustInput(password).MustType(input.Enter)
-
 	// show number for authenticator
 	logrus.Info("Wait for the two factor authenticator number")
-	number := page.MustWaitStable().MustElement("#idRichContext_DisplaySign").MustText()
-	fmt.Println("authenticator", number)
+	twoFaNumber, err := TryNoPasswordLoginPage(page)
+	if err != nil {
+		twoFaNumber = TryPasswordLoginPage(page)
+	}
+	fmt.Println("authenticator", twoFaNumber)
 
 	// wait page redirect
 	for !strings.Contains(page.MustInfo().URL, trendAwsStsUrl) {
