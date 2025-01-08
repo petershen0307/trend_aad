@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	trendaad "github.com/petershen0307/trend_aad"
 	"github.com/sirupsen/logrus"
@@ -65,7 +64,7 @@ func retrievePassword(args []string) string {
 	if password == "" {
 		fmt.Print("Enter Password: ")
 		// to hide user input on terminal
-		bytePassword, err := term.ReadPassword(syscall.Stdin)
+		bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
 		if err != nil {
 			logrus.Error(err)
 			return ""
