@@ -4,19 +4,17 @@
 
 ## Debugging with the UI
 
-```bash
-go run main.go -- -rod=show
-```
-
-## How to use
-
-`trend_aad` will query all aws credentials from your account and store at `~/.aws/credentials`.
+Currently not workable with [rod arguments](https://pkg.go.dev/github.com/go-rod/rod/lib/defaults), because argument use by username password
 
 ## How to install
 
 ```bash
 go install github.com/petershen0307/trend_aad/cmd/trend_aad
 ```
+
+## How to use
+
+`trend_aad` will query all aws credentials from your account and store at `~/.aws/credentials`.
 
 ### Command parameters
 
