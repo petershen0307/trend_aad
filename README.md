@@ -12,6 +12,12 @@ go run main.go -- -rod=show
 
 `trend_aad` will query all aws credentials from your account and store at `~/.aws/credentials`.
 
+## How to install
+
+```bash
+go install github.com/petershen0307/trend_aad/cmd/trend_aad
+```
+
 ### Command parameters
 
 ```bash
