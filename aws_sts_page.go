@@ -137,7 +137,7 @@ type AwsSts struct {
 }
 
 func (trendAwsSts TrendAwsSts) FlushAwsCredential(awsCredentialFile io.StringWriter) {
-	for _, accountVals := range trendAwsSts {
+	for awsAccountID, accountVals := range trendAwsSts {
 		if _, ok := accountVals["name"]; !ok {
 			continue
 		}
@@ -156,11 +156,14 @@ func (trendAwsSts TrendAwsSts) FlushAwsCredential(awsCredentialFile io.StringWri
 				logrus.Debugf("Skip data(%s): %v", string(byteData), err)
 				continue
 			}
-			iniFormat := convertToIniFormat(fmt.Sprintf("%s_%s", accountName, k), sts)
+			roleName := strings.Trim(k, "_"+awsAccountID)
+			sectionName := fmt.Sprintf("%s_%s", accountName, roleName)
+			iniFormat := convertToIniFormat(sectionName, sts)
 			_, err = awsCredentialFile.WriteString(iniFormat + "\n")
 			if err != nil {
 				logrus.Errorf("Can't write the credential file: %v", err)
 			}
+			logrus.Infof("Retrieved credential: %s", sectionName)
 		}
 	}
 }

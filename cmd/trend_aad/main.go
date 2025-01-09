@@ -21,6 +21,7 @@ func main() {
 		return
 	}
 	defer awsCredentialFile.Close()
+	logrus.Infof("aws credential file: %v", awsCredentialFile.Name())
 	sts.FlushAwsCredential(awsCredentialFile)
 }
 
