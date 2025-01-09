@@ -163,7 +163,7 @@ func (trendAwsSts TrendAwsSts) FlushAwsCredential(awsCredentialFile io.StringWri
 			if err != nil {
 				logrus.Errorf("Can't write the credential file: %v", err)
 			}
-			logrus.Infof("Retrieved credential: %s", sectionName)
+			logrus.Infof("Retrieved credential: %s, Expiration: %s", sectionName, sts.Expiration)
 		}
 	}
 }

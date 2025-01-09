@@ -90,15 +90,15 @@ func Test_flushing(t *testing.T) {
 	buffer := bytes.NewBuffer([]byte{})
 	sts.FlushAwsCredential(buffer)
 	output := buffer.String()
-	assert.Contains(t, output, "[c1ws-prod-us_AAD-READONLY_147995105371]\n")
+	assert.Contains(t, output, "[c1ws-prod-us_AAD-READONLY]\n")
 	assert.Contains(t, output, "aws_access_key_id = ASASE5JSDBN2R7C7S25\n")
 	assert.Contains(t, output, "aws_secret_access_key = aWD5cM4HNTVgbGtmS2HVfgwNwniY2+epDB/yUkJE\n")
 	assert.Contains(t, output, "aws_session_token = IQoJb3JpZ2luX2VjEPb//////////7Bg0mG1IvFfvRo5P0y60vC6PC8qAIhAKCJjDqdnPR79gOpy0U7zbDL4KyI\n")
-	assert.Contains(t, output, "[xdr-sae-stg_AAD-Contributor_658949957415]\n")
+	assert.Contains(t, output, "[xdr-sae-stg_AAD-Contributor]\n")
 	assert.Contains(t, output, "aws_access_key_id = ASIAZS3D2M4TS4ME7WY\n")
 	assert.Contains(t, output, "aws_secret_access_key = wLkICoCrwhPzgFLVWRRDzd3t047BWZEu4gqHoh+u\n")
 	assert.Contains(t, output, "aws_session_token = IQoJb3JpZ2luX2VjEPb//////////wEaCXVzLWVhc3QtMSJIMEYCIQD+3\n")
-	assert.Contains(t, output, "[xdr-sae-stg_AAD-RD_658949957415]\n")
+	assert.Contains(t, output, "[xdr-sae-stg_AAD-RD]\n")
 	assert.Contains(t, output, "aws_access_key_id = SIAZS3D2M4T45GPHKXJ\n")
 	assert.Contains(t, output, "aws_secret_access_key = 04UgGeQAJBwk264YdR6SLqCt52W/22C9jWWPmOJc\n")
 	assert.Contains(t, output, "aws_session_token = IQoJb3JpZ2luX2VjEPbwEaCXVzLWVhc3QtMSJIMEYCIQD\n")
@@ -122,7 +122,7 @@ func Test_flushing_specialStructure(t *testing.T) {
 	buffer := bytes.NewBuffer([]byte{})
 	sts.FlushAwsCredential(buffer)
 	output := buffer.String()
-	assert.Equal(t, `[xdr-crp-prod_AAD-ADMIN_761533865683]
+	assert.Equal(t, `[xdr-crp-prod_AAD-ADMIN]
 aws_access_key_id = ASIA3CTXUT3JYCE52AFZ
 aws_secret_access_key = u0EZ2er+
 aws_session_token = IQoJb3JpZ2luX2VjEPb//////////wEaCXVzLWVhc3QtMSJHMEUCIQDsD9VvkdYvOLsXwyTba1tms5ZP177Fso
