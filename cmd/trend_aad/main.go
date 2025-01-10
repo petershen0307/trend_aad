@@ -14,6 +14,7 @@ func main() {
 	initLogger()
 	user := retrieveUser(os.Args)
 	browser := trendaad.InitialBrowser()
+	defer browser.MustClose()
 	page := trendaad.LoginPage(browser, user)
 	sts := trendaad.ExtractAwsStsFromPage(page)
 	awsCredentialFile, err := openAwsCredentialFile()
@@ -21,7 +22,7 @@ func main() {
 		return
 	}
 	defer awsCredentialFile.Close()
-	logrus.Infof("aws credential file: %v", awsCredentialFile.Name())
+	logrus.Debugf("aws credential file: %v", awsCredentialFile.Name())
 	sts.FlushAwsCredential(awsCredentialFile)
 }
 
