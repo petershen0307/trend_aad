@@ -12,6 +12,16 @@ Currently not workable with [rod arguments](https://pkg.go.dev/github.com/go-rod
 go install github.com/petershen0307/trend_aad/cmd/trend_aad
 ```
 
+## Troubleshoot
+
+### Open the browser UI
+
+[go rod doc](https://go-rod.github.io/#/get-started/README)
+
+```bash
+./trend_aad -rod=show
+```
+
 ## How to use
 
 `trend_aad` will query all aws credentials from your account and store at `~/.aws/credentials`.
@@ -19,7 +29,7 @@ go install github.com/petershen0307/trend_aad/cmd/trend_aad
 ### Command parameters
 
 ```bash
-./trend_aad "trend user" "trend password"
+./trend_aad -u "trend user" -p "trend password"
 ```
 
 ### OS environment variable

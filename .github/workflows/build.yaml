@@ -31,7 +31,7 @@ jobs:
     - name: Set build version info into env
       id: set_build_version_info
       run: |
-        version_prefix=v0.0
+        version_prefix=v0.1
         version=$version_prefix.${{ github.run_number }}
 
         if [ ${{ github.ref }} != "refs/heads/main" ]

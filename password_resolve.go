@@ -11,7 +11,12 @@ import (
 func retrievePassword(args []string) string {
 	password := os.Getenv("TREND_PASSWORD")
 	if len(args) >= 3 {
-		password = args[2]
+		for i, arg := range args {
+			if arg == "-p" && i+1 <= len(args) {
+				password = args[i+1]
+				break
+			}
+		}
 	}
 	if password == "" {
 		fmt.Print("Enter Password: ")

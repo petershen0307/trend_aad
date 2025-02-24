@@ -43,8 +43,13 @@ func initLogger() {
 
 func retrieveUser(args []string) string {
 	user := os.Getenv("TREND_USERNAME")
-	if len(args) >= 2 {
-		user = args[1]
+	if len(args) >= 3 {
+		for i, arg := range args {
+			if arg == "-u" && i+1 <= len(args) {
+				user = args[i+1]
+				break
+			}
+		}
 	}
 	// let user input the user name
 	if user == "" {

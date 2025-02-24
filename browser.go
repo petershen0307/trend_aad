@@ -8,7 +8,7 @@ import (
 
 func InitialBrowser() *rod.Browser {
 	controlURL := ""
-	l := launcher.New().Headless(true).Leakless(false)
+	l := launcher.New().Leakless(false)
 	if path, exists := launcher.LookPath(); exists {
 		logrus.Infof("detect browser: %s", path)
 		controlURL = l.Bin(path).MustLaunch()

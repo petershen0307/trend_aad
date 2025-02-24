@@ -16,7 +16,7 @@ func Test_userName_fromEnv(t *testing.T) {
 }
 
 func Test_userName_fromArgs(t *testing.T) {
-	user := retrieveUser([]string{"program name", "test"})
+	user := retrieveUser([]string{"program name", "-u", "test"})
 	assert.Equal(t, "test", user)
 }
 

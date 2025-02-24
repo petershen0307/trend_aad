@@ -15,6 +15,6 @@ func Test_password_fromEnv(t *testing.T) {
 }
 
 func Test_password_fromArgs(t *testing.T) {
-	password := retrievePassword([]string{"program name", "user", "ps"})
+	password := retrievePassword([]string{"program name", "-p", "ps"})
 	assert.Equal(t, "ps", password)
 }
