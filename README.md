@@ -53,7 +53,7 @@ add a aws-switch profile function to `~/.config/fish/functions/aws-switch.fish`
 this script use the tool `fzf`
 
 ```fish
-function aws-switch
+function aws-profile
     set profiles (aws configure list-profiles)
     if test (count $profiles) -eq 0
         echo "No AWS profiles found."
@@ -70,7 +70,7 @@ function aws-switch
     end
 end
 
-
+export AWS_PROFILE=$(aws configure list-profiles | fzf --height 40% --reverse --border)
 ```
 
 ## install chromium dependencies
