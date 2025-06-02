@@ -89,10 +89,7 @@ func LoginPage(browser *rod.Browser, user string) *rod.Page {
 
 func ExtractAwsStsFromPage(page *rod.Page) TrendAwsSts {
 	// get credential from resource F12>Application>Frames>Top>https://awssts.infosec.trendmicro.com
-	pageHtml, err := page.GetResource(trendAwsStsUrl)
-	if err != nil {
-		logrus.Errorf("Can't get the resource(%s): %v", trendAwsStsUrl, err)
-	}
+	pageHtml := page.MustHTML()
 	scanner := bufio.NewScanner(strings.NewReader(html.UnescapeString(string(pageHtml))))
 	creds := TrendAwsSts{}
 	// the credential in page is a json object start with this prefix in a line
