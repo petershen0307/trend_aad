@@ -89,6 +89,7 @@ func LoginPage(browser *rod.Browser, user string) *rod.Page {
 
 func ExtractAwsStsFromPage(page *rod.Page) TrendAwsSts {
 	// get credential from resource F12>Application>Frames>Top>https://awssts.infosec.trendmicro.com
+	page.MustWaitLoad()
 	pageHtml := page.MustHTML()
 	scanner := bufio.NewScanner(strings.NewReader(html.UnescapeString(string(pageHtml))))
 	creds := TrendAwsSts{}
@@ -124,7 +125,7 @@ example of TrendAwsSts:
 		}
 	}
 */
-type TrendAwsSts map[string]map[string]interface{}
+type TrendAwsSts map[string]map[string]any
 
 type AwsSts struct {
 	AccessKeyId     string `json:"AccessKeyId"`
