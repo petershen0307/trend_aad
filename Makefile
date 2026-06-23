@@ -31,7 +31,10 @@ endef
 $(foreach app,$(APPS),$(eval $(call BUILD_APPS,$(app))))
 
 install_chromium_dependencies:
-	sudo apt install -y libnss3 libgbm-dev libasound2
+	# for ubuntu 22.04 and older
+	# sudo apt install -y libnss3 libgbm-dev libasound2
+	# for ubuntu 24.04 and newer
+	sudo apt install -y libnss3 libasound2t64
 
 pack_app:
 	echo "$(PACK_APP_NAME)" > ./$(OUTDIR)/$(APP_NAME)/VERSION
