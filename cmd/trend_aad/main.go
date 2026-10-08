@@ -4,18 +4,25 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	trendaad "github.com/petershen0307/trend_aad"
+	"github.com/go-rod/rod"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	initLogger()
-	user := retrieveUser(os.Args)
 	browser := trendaad.InitialBrowser()
 	defer browser.MustClose()
-	page := trendaad.LoginPage(browser, user)
+	var page *rod.Page
+	if isSemiAuto(os.Args) {
+		page = trendaad.WaitSemiAutoLogin(browser)
+	} else {
+		user := retrieveUser(os.Args)
+		page = trendaad.LoginPage(browser, user)
+	}
 	sts := trendaad.ExtractAwsStsFromPage(page)
 	awsCredentialFile, err := openAwsCredentialFile()
 	if err != nil {
@@ -39,6 +46,10 @@ func initLogger() {
 	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
+}
+
+func isSemiAuto(args []string) bool {
+	return slices.Contains(args, "-rod=show")
 }
 
 func retrieveUser(args []string) string {

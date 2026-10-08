@@ -58,10 +58,47 @@ func TryNoPasswordLoginPage(page *rod.Page) (string, error) {
 
 // return two factor authenticator number
 func TryPasswordLoginPage(page *rod.Page) string {
+	TryPasskeyPage(page)
+	TryCredentialPickerPage(page)
 	password := retrievePassword(os.Args)
 	page.MustWaitStable().MustElement("#i0118").MustInput(password).MustType(input.Enter)
 	number := page.MustWaitStable().MustElement("#idRichContext_DisplaySign").MustText()
 	return number
+}
+
+func TryPasskeyPage(page *rod.Page) {
+	page.MustWaitStable()
+	el, err := page.Timeout(5 * time.Second).Element("#idA_PWD_SwitchToCredPicker")
+	if err != nil {
+		return
+	}
+	logrus.Info("Skip passkey, sign in another way")
+	el.MustClick()
+}
+
+func TryCredentialPickerPage(page *rod.Page) {
+	page.MustWaitStable()
+	el, err := page.Timeout(5 * time.Second).Element(`[data-test-cred-id="2"]`)
+	if err != nil {
+		return
+	}
+	logrus.Info("Choose Microsoft Authenticator, skip passkey")
+	el.MustClick()
+}
+
+func WaitSemiAutoLogin(browser *rod.Browser) *rod.Page {
+	page := browser.MustPage(trendAwsStsUrl).MustWaitStable()
+	WaitManualLogin(page)
+	return page
+}
+
+func WaitManualLogin(page *rod.Page) {
+	fmt.Print("Manual login done, press Enter to continue: ")
+	fmt.Scanln()
+	page.MustWaitStable()
+	for !strings.Contains(page.MustInfo().URL, trendAwsStsUrl) {
+		time.Sleep(100 * time.Millisecond)
+	}
 }
 
 func LoginPage(browser *rod.Browser, user string) *rod.Page {
